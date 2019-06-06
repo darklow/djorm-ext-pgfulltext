@@ -43,7 +43,11 @@ except ImportError:
 
 
 def auto_update_search_field_handler(sender, instance, *args, **kwargs):
-    instance.update_search_field()
+    defaults = {'using': 'default'}
+
+    instance.update_search_field(
+        **{arg: kwargs.get(arg, defaults[arg]) for arg in defaults.keys()}
+    )
 
 
 class SearchManagerMixIn(object):
@@ -112,7 +116,7 @@ class SearchManagerMixIn(object):
             if not getattr(cls, 'update_search_field', None):
                 def update_search_field(self, search_field=None, fields=None, using=None, config=None, extra=None):
                     self._fts_manager.update_search_field(
-                        pk=self.pk, search_field=search_field, fields=fields, using=using, config=config, extra=extra
+                        pk=self.pk, search_field=search_field, fields=fields, using=using or self._state_db, config=config, extra=extra
                     )
 
                 setattr(cls, 'update_search_field', update_search_field)
