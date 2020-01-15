@@ -1,12 +1,12 @@
 import psycopg2
-
+from django.conf import settings
 from django.db import connection
 from django.utils.encoding import force_text
 
 
 def adapt(text):
     a = psycopg2.extensions.adapt(force_text(text))
-    dbconfig = getattr(settings,"DATABASES", {'default': None})['default']
+    dbconfig = getattr(settings, "DATABASES", {'default': None})['default']
     if not dbconfig:
         raise "'default' DATABASES connection is required in settings.py for djorm_ext_pgfulltext."
     try:
@@ -14,7 +14,7 @@ def adapt(text):
                                   user=dbconfig['USER'],
                                   password=dbconfig['PASSWORD'],
                                   host=dbconfig['HOST'],
-                                  port = dbconfig['PORT'])
+                                  port=dbconfig['PORT'])
         a.prepare(pgconn)
     finally:
         pgconn.close()
